@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+instance/
+.env
+myenv/
+*.sqlite3
+*.db
+.DS_Store
+start-tailwind.sh
+flask_session/
+.hintrc

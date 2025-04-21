@@ -1,0 +1,264 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <div>
+
+        <div class="mb-6 pb-3 relative mx-auto">
+            <div class="text-xl font-bold pt-8 pb-3 px-1">
+                <h2>Popular Recipes</h2>
+            </div>
+            <div class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth px-1 scrollbar-none max-w-full" id="recipe-container">
+                {% for recipe in recipes %}
+                    <div class="recipe-card flex-shrink-0 w-64 snap-start bg-white rounded-lg shadow-md overflow-hidden relative">
+                        <a href="/recipe/{{ recipe.id }}" title="recipe info" class="block transform transition-transform duration-150 hover:scale-105 active:scale-90">
+                            <div class="w-full h-40">
+                                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+
+                            {% if session.get("user_id") %}
+                                <button
+                                    class="absolute bottom-4 right-4 bg-transparent rounded-full p-2 
+                                    {% if recipe.id in bookmarked_recipes %} text-[#1e293b] {% else %} text-gray-500 {% endif %}"
+                                    aria-label="bookmark"
+                                    data-recipe-id="{{ recipe.id }}"
+                                    data-recipe-title="{{ recipe.title }}"
+                                    data-recipe-image="{{ recipe.image }}"
+                                    onclick="toggleBookmark(event, this)"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="{% if recipe.id in bookmarked_recipes %} #1e293b {% else %} none {% endif %}"
+                                        stroke="{% if recipe.id in bookmarked_recipes %} none {% else %} currentColor {% endif %}"
+                                        stroke-width="1.5"
+                                        viewBox="0 0 24 24"
+                                        class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                    </svg>
+                                </button>
+                                
+                            {% else %}
+                                <button
+                                    class="absolute bottom-4 right-4 bg-transparent rounded-full p-2 text-gray-500 hover:text-[#1e293b] focus:outline-none shadow-md"
+                                    aria-label="login-to-bookmark"
+                                    onclick="promptLogin()"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        viewBox="0 0 24 24" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                    </svg>
+                                </button>
+                            {% endif %}
+
+                            <div class="p-4">
+                                <h3 class="text-[.900rem] font-medium">{{ recipe.title }}</h3>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+                <button title="left arrow" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md w-12 h-12 hover:bg-gray-100 hidden md:block" onclick="scrollLeftPopular()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
+                <button title="right arrow" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md w-12 h-12 hover:bg-gray-100 hidden md:block" onclick="scrollRightPopular()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>              
+                </button>
+            </div>  
+        </div>
+
+        <div class="mb-6 pb-3 relative mx-auto ">
+            <div class="text-xl font-bold pb-3 px-1">
+                <h2>Vegan Options</h2>
+            </div>
+            <div class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth px-1 scrollbar-none max-w-full" id="vegan-container">
+                {% for vegan in vegans %}
+                    <div class="recipe-card flex-shrink-0 w-64 snap-start bg-white rounded-lg shadow-md overflow-hidden relative">
+                        <a href="/recipe/{{ vegan.id }}" title="recipe info" class="block transform transition-transform duration-150 hover:scale-105 active:scale-90">
+                            <div class="w-full h-40">
+                                <img src="{{ vegan.image }}" alt="{{ vegan.title }}" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+
+                            {% if session.get("user_id") %}
+                                <button
+                                    class="absolute bottom-4 right-4 bg-transparent rounded-full p-2
+                                    {% if vegan.id in bookmarked_recipes %} text-[#1e293b] {% else %} text-gray-500 {% endif %}"
+                                    aria-label="bookmark"
+                                    data-recipe-id="{{ vegan.id }}"
+                                    data-recipe-title="{{ vegan.title }}"
+                                    data-recipe-image="{{ vegan.image }}"
+                                    onclick="toggleBookmark(event, this)"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="{% if vegan.id in bookmarked_recipes %} #1e293b {% else %} none {% endif %}" stroke="{% if vegan.id in bookmarked_recipes %} none {% else %} currentColor {% endif %}" stroke-width="1.5" viewBox="0 0 24 24" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                    </svg>
+                                </button>
+                            {% else %}
+                                <button
+                                        class="absolute bottom-4 right-4 bg-transparent rounded-full p-2 text-gray-500 hover:text-[#1e293b] focus:outline-none shadow-md"
+                                        aria-label="login-to-bookmark"
+                                        onclick="promptLogin()"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            viewBox="0 0 24 24" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                        </svg>
+                                    </button>
+                            {% endif %}
+
+                            <div class="p-4">
+                                <h3 class="text-[.900rem] font-medium">{{ vegan.title }}</h3>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+                <button title="left arrow" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md w-12 h-12 hover:bg-gray-100 hidden md:block" onclick="scrollLeftVegan()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
+                <button title="right arrow" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md w-12 h-12 hover:bg-gray-100 hidden md:block" onclick="scrollRightVegan()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>              
+                </button>
+            </div>  
+        </div>
+
+        <div class="mb-6 pb-3 relative mx-auto ">
+            <div class="text-xl font-bold pb-3 px-1">
+                <h2>Chicken Recipes</h2>
+            </div>
+            <div class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth px-1 scrollbar-none max-w-full" id="chicken-container">
+                {% for chicken in chickens %}
+                    <div class="recipe-card flex-shrink-0 w-64 snap-start bg-white rounded-lg shadow-md overflow-hidden relative">
+                        <a href="/recipe/{{ chicken.id }}" title="recipe info" class="block transform transition-transform duration-150 hover:scale-105 active:scale-90">
+                            <div class="w-full h-40">
+                                <img src="{{ chicken.image }}" alt="{{ chicken.title }}" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+
+                            {% if session.get("user_id") %}
+                                <button
+                                    class="absolute bottom-4 right-4 bg-transparent rounded-full p-2
+                                    {% if chicken.id in bookmarked_recipes %} text-[#1e293b] {% else %} text-gray-500 {% endif %}"
+                                    aria-label="bookmark"
+                                    data-recipe-id="{{ chicken.id }}"
+                                    data-recipe-title="{{ chicken.title }}"
+                                    data-recipe-image="{{ chicken.image }}"
+                                    onclick="toggleBookmark(event, this)"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="{% if chicken.id in bookmarked_recipes %} #1e293b {% else %} none {% endif %}" stroke="{% if chicken.id in bookmarked_recipes %} none {% else %} currentColor {% endif %}" stroke-width="1.5" viewBox="0 0 24 24" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                    </svg>
+                                </button>
+                            {% else %}
+                                <button
+                                        class="absolute bottom-4 right-4 bg-transparent rounded-full p-2 text-gray-500 hover:text-[#1e293b] focus:outline-none shadow-md"
+                                        aria-label="login-to-bookmark"
+                                        onclick="promptLogin()"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            viewBox="0 0 24 24" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                        </svg>
+                                    </button>
+                            {% endif %}
+                            <div class="p-4">
+                                <h3 class="text-[.900rem] font-medium">{{ chicken.title }}</h3>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+                <button title="left arrow" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md w-12 h-12 hover:bg-gray-100 hidden md:block" onclick="scrollLeftChicken()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
+                <button title="right arrow" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md w-12 h-12 hover:bg-gray-100 hidden md:block" onclick="scrollRightChicken()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>              
+                </button>
+            </div>  
+        </div>
+
+        <section class="relative z-50 overflow-hidden bg-[#1e293b] py-16 px-8 mb-12 rounded-lg">
+            <div class="container">
+                <div class="-mx-4 flex flex-wrap items-center">
+                    <div class="w-full px-4 lg:w-1/2">
+                        <div class="text-center lg:text-left ">
+                            <div class="mb-10 lg:mb-0 ">
+                                <h1
+                                 class="mt-0 mb-3 text-3xl font-bold leading-tight sm:text-4xl sm:leading-tight md:text-[40px] md:leading-tight text-white ">
+                                    Get Your Personalized Meal Plan Now!
+                                </h1>
+                                <p
+                                 class="w-full text-base font-medium leading-relaxed sm:text-lg sm:leading-relaxed text-slate-400">
+                                 Tell us your goals, and we'll craft a personalized plan in seconds.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full px-4 lg:w-1/2">
+                        <div class="text-center lg:text-right"><a
+                                class="font-semibold rounded-lg mx-auto inline-flex items-center justify-center bg-white py-4 px-9 hover:bg-opacity-90"
+                                href="/generate-meal-plan">Get My Meal Plan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <span class="absolute top-0 right-0 -z-10">
+                <svg width="388" height="250" viewBox="0 0 388 220" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.05" d="M203 -28.5L4.87819e-05 250.5L881.5 250.5L881.5 -28.5002L203 -28.5Z" fill="url(#paint0_linear_971_6910)"></path><defs><linearGradient id="paint0_linear_971_6910" x1="60.5" y1="111" x2="287" y2="111" gradientUnits="userSpaceOnUse"><stop offset="0.520507" stop-color="white"></stop><stop offset="1" stop-color="white" stop-opacity="0"></stop></linearGradient></defs></svg></span><span class="absolute top-0 right-0 -z-10"><svg width="324" height="250" viewBox="0 0 324 220" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.05" d="M203 -28.5L4.87819e-05 250.5L881.5 250.5L881.5 -28.5002L203 -28.5Z" fill="url(#paint0_linear_971_6911)"></path><defs><linearGradient id="paint0_linear_971_6911" x1="60.5" y1="111" x2="287" y2="111" gradientUnits="userSpaceOnUse"><stop offset="0.520507" stop-color="white"></stop><stop offset="1" stop-color="white" stop-opacity="0"></stop></linearGradient></defs></svg></span><span class="absolute top-4 left-4 -z-10"><svg width="43" height="56" viewBox="0 0 43 56" fill="none" xmlns="http://www.w3.org/2000/svg"><g opacity="0.5"><circle cx="40.9984" cy="1.49626" r="1.49626" transform="rotate(90 40.9984 1.49626)" fill="white"></circle><circle cx="27.8304" cy="1.49626" r="1.49626" transform="rotate(90 27.8304 1.49626)" fill="white"></circle><circle cx="14.6644" cy="1.49626" r="1.49626" transform="rotate(90 14.6644 1.49626)" fill="white"></circle><circle cx="1.49642" cy="1.49626" r="1.49626" transform="rotate(90 1.49642 1.49626)" fill="white"></circle><circle cx="40.9984" cy="14.6642" r="1.49626" transform="rotate(90 40.9984 14.6642)" fill="white"></circle><circle cx="27.8304" cy="14.6642" r="1.49626" transform="rotate(90 27.8304 14.6642)" fill="white"></circle><circle cx="14.6644" cy="14.6642" r="1.49626" transform="rotate(90 14.6644 14.6642)" fill="white"></circle><circle cx="1.49642" cy="14.6642" r="1.49626" transform="rotate(90 1.49642 14.6642)" fill="white"></circle><circle cx="40.9984" cy="27.8302" r="1.49626" transform="rotate(90 40.9984 27.8302)" fill="white"></circle><circle cx="27.8304" cy="27.8302" r="1.49626" transform="rotate(90 27.8304 27.8302)" fill="white"></circle><circle cx="14.6644" cy="27.8302" r="1.49626" transform="rotate(90 14.6644 27.8302)" fill="white"></circle><circle cx="1.49642" cy="27.8302" r="1.49626" transform="rotate(90 1.49642 27.8302)" fill="white"></circle><circle cx="40.9984" cy="40.9982" r="1.49626" transform="rotate(90 40.9984 40.9982)" fill="white"></circle><circle cx="27.8304" cy="40.9963" r="1.49626" transform="rotate(90 27.8304 40.9963)" fill="white"></circle><circle cx="14.6644" cy="40.9982" r="1.49626" transform="rotate(90 14.6644 40.9982)" fill="white"></circle><circle cx="1.49642" cy="40.9963" r="1.49626" transform="rotate(90 1.49642 40.9963)" fill="white"></circle><circle cx="40.9984" cy="54.1642" r="1.49626" transform="rotate(90 40.9984 54.1642)" fill="white"></circle><circle cx="27.8304" cy="54.1642" r="1.49626" transform="rotate(90 27.8304 54.1642)" fill="white"></circle><circle cx="14.6644" cy="54.1642" r="1.49626" transform="rotate(90 14.6644 54.1642)" fill="white"></circle><circle cx="1.49642" cy="54.1642" r="1.49626" transform="rotate(90 1.49642 54.1642)" fill="white"></circle></g>
+                </svg>
+            </span>
+        </section>
+
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    function scrollLeftPopular() {
+        const container = document.getElementById('recipe-container');
+        container.scrollBy({ left: -600, behavior: 'smooth' });
+    }
+
+    function scrollRightPopular() {
+        const container = document.getElementById('recipe-container');
+        container.scrollBy({ left: 600, behavior: 'smooth' });
+    }
+
+    function scrollLeftVegan() {
+        const container = document.getElementById('vegan-container');
+        container.scrollBy({ left: -600, behavior: 'smooth' });
+    }
+
+    function scrollRightVegan() {
+        const container = document.getElementById('vegan-container');
+        container.scrollBy({ left: 600, behavior: 'smooth' });
+    }
+
+    function scrollLeftChicken() {
+        const container = document.getElementById('chicken-container');
+        container.scrollBy({ left: -600, behavior: 'smooth' });
+    }
+
+    function scrollRightChicken() {
+        const container = document.getElementById('chicken-container');
+        container.scrollBy({ left: 600, behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block title %}Generate Meal Plan{% endblock %}
+{% block main %}
+<div class="min-h-1 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 space-y-6">
+    <!-- Header -->
+    <h1 class="text-3xl font-bold text-[#1e293b] font-playfair text-center">Craft Your Meal Plan</h1>
+    <p class="text-sm text-gray-600 text-center">Pick your vibe, set your goals, and let's cook up something tasty.</p>
+
+    <!-- Diet Selection (Clickable Cards) -->
+    <div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">Diet Style</h2>
+      <div class="grid grid-cols-2 gap-3" id="diet-options">
+        <button type="button" data-value="" class="diet-option bg-gray-200 text-gray-700 rounded-md p-3 text-sm font-medium hover:bg-[#1e293b] hover:text-white transition-all duration-200 active:bg-[#1e293b] active:text-white">Any</button>
+        <button type="button" data-value="vegetarian" class="diet-option bg-gray-200 text-gray-700 rounded-md p-3 text-sm font-medium hover:bg-[#1e293b] hover:text-white transition-all duration-200 active:bg-[#1e293b] active:text-white">Vegetarian</button>
+        <button type="button" data-value="vegan" class="diet-option bg-gray-200 text-gray-700 rounded-md p-3 text-sm font-medium hover:bg-[#1e293b] hover:text-white transition-all duration-200 active:bg-[#1e293b] active:text-white">Vegan</button>
+        <button type="button" data-value="glutenFree" class="diet-option bg-gray-200 text-gray-700 rounded-md p-3 text-sm font-medium hover:bg-[#1e293b] hover:text-white transition-all duration-200 active:bg-[#1e293b] active:text-white">Gluten-Free</button>
+        <button type="button" data-value="ketogenic" class="diet-option bg-gray-200 text-gray-700 rounded-md p-3 text-sm font-medium hover:bg-[#1e293b] hover:text-white transition-all duration-200 active:bg-[#1e293b] active:text-white">Keto</button>
+      </div>
+    </div>
+
+    <!-- Calories Slider -->
+    <div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">Daily Calories</h2>
+      <input title="calories" type="range" id="calories" name="calories" min="1000" max="5000" value="2000" step="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#1e293b]">
+      <div class="flex justify-between text-sm text-gray-600">
+        <span>1000</span>
+        <span id="calories-value" class="font-semibold text-[#1e293b]">2000</span>
+        <span>5000</span>
+      </div>
+    </div>
+
+    <!-- Exclusions (Tag Input) -->
+    <div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">No-Go Ingredients</h2>
+      <div class="flex flex-wrap gap-2 p-2 border rounded-md min-h-[2.5rem]" id="exclude-container">
+        <input type="text" id="exclude-input" placeholder="Type and press Enter (e.g., nuts)" class="flex-grow bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400">
+      </div>
+      <div id="exclude-tags" class="flex flex-wrap gap-2 mt-2"></div>
+    </div>
+
+    <!-- Hidden Form for Submission -->
+    <form id="meal-plan-form" method="POST" action="/generate-meal-plan" class="hidden">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="diet" id="diet-hidden">
+      <input type="hidden" name="calories" id="calories-hidden">
+      <input type="hidden" name="exclude" id="exclude-hidden">
+    </form>
+
+    <!-- Generate Button -->
+    <button id="generate-btn" class="w-full bg-[#1e293b] text-white py-3 rounded-md font-semibold hover:bg-[#2d3b55] transition-all duration-200">Generate My Plan</button>
+  </div>
+</div>
+
+<script>
+  // Diet Selection
+  const dietOptions = document.querySelectorAll('.diet-option');
+  const dietHidden = document.getElementById('diet-hidden');
+  dietOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      dietOptions.forEach(opt => opt.classList.remove('bg-[#1e293b]', 'text-white'));
+      option.classList.add('bg-[#1e293b]', 'text-white');
+      dietHidden.value = option.getAttribute('data-value');
+    });
+  });
+
+  // Calories Slider
+  const caloriesSlider = document.getElementById('calories');
+  const caloriesValue = document.getElementById('calories-value');
+  const caloriesHidden = document.getElementById('calories-hidden');
+  caloriesSlider.addEventListener('input', () => {
+    caloriesValue.textContent = caloriesSlider.value;
+    caloriesHidden.value = caloriesSlider.value;
+  });
+  caloriesHidden.value = caloriesSlider.value; // Initial value
+
+  // Exclusions Tag Input
+  const excludeInput = document.getElementById('exclude-input');
+  const excludeTags = document.getElementById('exclude-tags');
+  const excludeHidden = document.getElementById('exclude-hidden');
+  let tags = [];
+
+  excludeInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && excludeInput.value.trim()) {
+      e.preventDefault();
+      const tag = excludeInput.value.trim();
+      tags.push(tag);
+      renderTags();
+      excludeInput.value = '';
+      updateExcludeHidden();
+    }
+  });
+
+  function renderTags() {
+    excludeTags.innerHTML = '';
+    tags.forEach((tag, index) => {
+      const tagEl = document.createElement('span');
+      tagEl.className = 'bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm flex items-center gap-1';
+      tagEl.innerHTML = `${tag} <button type="button" class="text-gray-500 hover:text-red-500" onclick="removeTag(${index})">x</button>`;
+      excludeTags.appendChild(tagEl);
+    });
+  }
+
+  function removeTag(index) {
+    tags.splice(index, 1);
+    renderTags();
+    updateExcludeHidden();
+  }
+
+  function updateExcludeHidden() {
+    excludeHidden.value = tags.join(', ');
+  }
+
+  // Submit Form
+  document.getElementById('generate-btn').addEventListener('click', () => {
+    document.getElementById('meal-plan-form').submit();
+  });
+</script>
+{% endblock %}

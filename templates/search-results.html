@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search Results for "{{ query }}"
+{% endblock %}
+
+{% block main %}
+    <h2 class="text-xl font-bold pt-8 pb-3 px-1 sm:py-4 sm:px-4">Search Results for "{{ query }}"</h2>
+
+    {% if recipes %}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-1 sm:px-4 pb-20 sm:pb-0">
+            {% for recipe in recipes %}
+                <div class="recipe-card bg-white rounded-lg shadow-md overflow-hidden relative">
+                    <a href="/recipe/{{ recipe.id }}" title="recipe info" class="block transform transition-transform duration-150 hover:scale-105 active:scale-90">
+                        <div class="w-full h-40">
+                            <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="p-3">
+                            <h3 class="text-[.75rem] md:text-[.9rem] font-medium">{{ recipe.title }}</h3>
+                        </div>
+                    </a>
+
+                    {% if session.get("user_id") %}
+                        <button
+                            class="absolute bottom-4 right-4 bg-transparent rounded-full p-2 
+                            {% if recipe.id in bookmarked_recipes %} text-[#1e293b] {% else %} text-gray-500 {% endif %}"
+                            aria-label="bookmark"
+                            data-recipe-id="{{ recipe.id }}"
+                            data-recipe-title="{{ recipe.title }}"
+                            data-recipe-image="{{ recipe.image }}"
+                            onclick="toggleBookmark(event, this)"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                fill="{% if recipe.id in bookmarked_recipes %} #1e293b {% else %} none {% endif %}"
+                                stroke="{% if recipe.id in bookmarked_recipes %} none {% else %} currentColor {% endif %}"
+                                stroke-width="1.5"
+                                viewBox="0 0 24 24"
+                                class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                            </svg>
+                        </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-500 mt-4">No recipes found. Try another search.</p>
+    {% endif %}
+{% endblock %}

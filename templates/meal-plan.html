@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block title %}My Meal Plan{% endblock %}
+{% block main %}
+<div class="p-6 max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl md:text-3xl font-bold text-[#1e293b] font-playfair">My Meal Plan</h1>
+    <a href="/generate-meal-plan" class="hidden md:block text-base text-[#1e293b] font-semibold hover:text-[#455979]">Generate New Plan</a>
+  </div>
+
+  {% if meal_plan %}
+    <!-- Day Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% for day, meals in meal_plan.plan_data.week.items() %}
+        <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-200">
+          <!-- Day Header -->
+          <h2 class="text-xl font-semibold text-[#1e293b] capitalize mb-3">{{ day }}</h2>
+
+          <!-- Meals List -->
+          <div class="space-y-3">
+            {% for meal in meals.meals %}
+              <a href="/recipe/{{ meal.id }}" class="flex items-center gap-3 group">
+                {% if meal.image %}
+                  <img src="{{ meal.image }}" alt="{{ meal.title }}" class="w-16 h-16 object-cover rounded-md group-hover:scale-105 transition-transform duration-200">
+                {% else %}
+                  <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">No Image</div>
+                {% endif %}
+                <div>
+                  <p class="text-gray-800 font-medium group-hover:text-[#1e293b] transition-colors duration-200">{{ meal.title }}</p>
+                  <p class="text-sm text-gray-500">{{ meal.readyInMinutes }} min</p>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+
+          <!-- Nutrients -->
+          <div class="mt-4 pt-3 border-t border-gray-200 text-sm text-gray-600">
+            <p><span class="font-semibold">Calories:</span> {{ meals.nutrients.calories }} cal</p>
+            <p><span class="font-semibold">Protein:</span> {{ meals.nutrients.protein }}g</p>
+            <p><span class="font-semibold">Fat:</span> {{ meals.nutrients.fat }}g</p>
+            <p><span class="font-semibold">Carbs:</span> {{ meals.nutrients.carbohydrates }}g</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- No Plan State -->
+    <div class="text-center py-12">
+      <p class="text-gray-500 text-lg">No meal plan yet—let’s whip one up!</p>
+      <a href="/generate-meal-plan" class="mt-4 inline-block bg-[#1e293b] text-white py-2 px-4 rounded-md font-semibold hover:bg-[#2d3b55] transition-colors duration-200">Generate Now</a>
+    </div>
+  {% endif %}
+  <div class="pt-6 justify-items-end">
+    <a href="/generate-meal-plan" class="block md:hidden text-base text-[#1e293b] font-semibold hover:text-[#455979]">Generate New Plan</a>
+
+  </div>
+</div>
+{% endblock %}
